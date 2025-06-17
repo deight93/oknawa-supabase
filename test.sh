@@ -12,8 +12,8 @@ curl -X POST http://localhost:54321/functions/v1/location-points \
 
 
 
-# 2. meeting 함수 호출 (옵션: 필요시 사용)
-curl -X POST http://localhost:54321/functions/v1/meeting \
+# 2. location-meeting 함수 호출 (옵션: 필요시 사용)
+curl -X POST http://localhost:54321/functions/v1/location-meeting \
   -H "Authorization: Bearer SUPABASE_ACCESS_TOKEN" \
   -H "Content-Type: application/json"
 
