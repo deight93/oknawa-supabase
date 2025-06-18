@@ -25,9 +25,9 @@
 ---
 
 결과확정 및 핫플레이스 관련
-5. 중간지점 결과(share_key)로 조회 
-   - GET /location/point/{share_key} 
-     - 설명: share_key로 중간지점 결과(확정) 조회
+
+~~5. 중간지점 결과(share_key)로 조회 ✅~~
+   - 테이블 API 대체
 
 6. 결과확정페이지에서 핫플레이스(만날장소) 리스트
    - GET /location/point/place/{category} 
