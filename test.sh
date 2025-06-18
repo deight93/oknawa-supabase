@@ -1,4 +1,7 @@
-# 1. 방 생성
+# local edge func 실행
+supabase functions serve --env-file ./.env
+
+# 1. 투표방 생성 (EDGE FUNCTION)
 curl -X POST http://localhost:54321/functions/v1/location-points \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer SUPABASE_ACCESS_TOKEN" \
@@ -11,22 +14,22 @@ curl -X POST http://localhost:54321/functions/v1/location-points \
   }'
 
 
-
-# 2. location-meeting 함수 호출 (옵션: 필요시 사용)
+# 2. location-meeting (EDGE FUNCTION)
 curl -X POST http://localhost:54321/functions/v1/location-meeting \
   -H "Authorization: Bearer SUPABASE_ACCESS_TOKEN" \
   -H "Content-Type: application/json"
 
 
 
-# 3. polling (map_id는 실제 반환값으로 대체)
-curl -X GET "http://localhost:54321/functions/v1/location-points-polling/{MAP_ID}" \
+# 3. polling (TABLE API)
+curl --request GET 'http://127.0.0.1:54321/rest/v1/location_result?map_id=eq.{MAP_ID}&select=*,station_info!station_info_map_id_fkey(*)' \
+  -H "apikey: SUPABASE_ACCESS_TOKEN" \
   -H "Authorization: Bearer SUPABASE_ACCESS_TOKEN" \
-  -H "Content-Type: application/json"
+  -H "Accept: application/vnd.pgrst.object+json"
 
 
 
-# 4. vote (map_id, share_key 실제값으로 대체)
+# 4. vote (EDGE FUNCTION)
 curl -X POST "http://localhost:54321/functions/v1/location-points-vote/{MAP_ID}" \
   -H "Authorization: Bearer SUPABASE_ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
@@ -34,8 +37,10 @@ curl -X POST "http://localhost:54321/functions/v1/location-points-vote/{MAP_ID}"
 
 
 
-# 5. confirm
-curl -X POST "http://localhost:54321/functions/v1/location-points-confirm/{MAP_ID}" \
-  -H "Authorization: Bearer SUPABASE_ACCESS_TOKEN" \
+# 5. confirm (TABLE API)
+curl --request PATCH \
+  'http://127.0.0.1:54321/rest/v1/location_result?map_id=eq.73f8aaaa-e86e-46ca-8622-3b7ca570b8a5&map_host_id=eq.aaaa8f37' \
+  -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0" \
   -H "Content-Type: application/json" \
-  -d "{\"map_host_id\": \"{MAP_HOST_ID}\", \"share_key\": \"{SHARE_KEY}\"}"
+  -d '{ "confirmed": "05a8662d-08e8-4971-b77a-866c8d4f9c2f" }'
