@@ -21,29 +21,32 @@ curl -X POST http://localhost:54321/functions/v1/location-points \
 
 
 # 3. GET location/points/{map_id}/polling (TABLE API)
-curl --request GET 'http://127.0.0.1:54321/rest/v1/location_result?map_id=eq.{MAP_ID}&select=*,station_info!station_info_map_id_fkey(*)' \
+curl --request GET 'http://127.0.0.1:54321/rest/v1/location_result?map_id=eq.{map_id}&select=*,station_info!station_info_map_id_fkey(*)' \
   -H "apikey: SUPABASE_ACCESS_TOKEN" \
   -H "Authorization: Bearer SUPABASE_ACCESS_TOKEN" \
   -H "Accept: application/vnd.pgrst.object+json"
 
 
 
-# 4. POST location/points/{map_id}/vote (EDGE FUNCTION)
-# TODO: RPC로 변경할것
-curl -X POST "http://localhost:54321/functions/v1/location-points-vote/{MAP_ID}" \
+# 4. POST location/points/{map_id}/vote (RPC API)
+curl -X POST "http://127.0.0.1:54321/rest/v1/rpc/location_points_vote" \
+  -H "apikey: SUPABASE_ACCESS_TOKEN" \
   -H "Authorization: Bearer SUPABASE_ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
-  -d "{\"share_key\": \"{SHARE_KEY}\"}"
+  -d '{
+    "map_id": "{map_id}",
+    "share_key": "{share_key}"
+  }'
 
 
 
 # 5. POST location/points/{map_id}/confirm (TABLE API)
 curl --request PATCH \
-  'http://127.0.0.1:54321/rest/v1/location_result?map_id=eq.73f8aaaa-e86e-46ca-8622-3b7ca570b8a5&map_host_id=eq.aaaa8f37' \
+  'http://127.0.0.1:54321/rest/v1/location_result?map_id=eq.{map_id}&map_host_id=eq.{map_host_id}' \
   -H "apikey: SUPABASE_ACCESS_TOKEN" \
   -H "Authorization: Bearer SUPABASE_ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{ "confirmed": "05a8662d-08e8-4971-b77a-866c8d4f9c2f" }'
+  -d '{ "confirmed": "{share_key}" }'
 
 
 # 6. GET location/point/{share_key} (TABLE API)
@@ -53,10 +56,10 @@ curl --request GET 'http://127.0.0.1:54321/rest/v1/station_info?share_key=eq.{SH
   -H "Accept: application/vnd.pgrst.object+json"
 
 
-# 7. POST location/together (EDGE FUNCTION)
-# TODO: RPC로 변경할것
-curl -X POST http://localhost:54321/functions/v1/location-together \
-  -H "Authorization: Bearer SUPABASE_ACCESS_TOKEN" \
+# 7. POST location/together (RPC API)
+curl -X POST "http://localhost:54321/rest/v1/rpc/location_together" \
+  -H "apikey: SUPABASE_SERVICE_ROLE_KEY" \
+  -H "Authorization: Bearer SUPABASE_SERVICE_ROLE_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "name": "김동환",
@@ -81,19 +84,33 @@ curl -X POST 'http://127.0.0.1:54321/rest/v1/participant' \
   -H "Authorization: Bearer SUPABASE_ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
-    "room_id": "c233535d-312b-4b74-b164-df29be8eaa45",
-    "name": "김띨팔", "region_name": "C장소", "start_x": 126.917252, "start_y": 37.494990 }'
+    "room_id": "{room_id}",
+    "name": "김띨팔",
+    "region_name": "C장소",
+    "start_x": 126.917252,
+    "start_y": 37.494990
+  }'
 
 
-# 9. PUT location/together/{room_id} (RPC API)
-curl -X POST 'http://127.0.0.1:54321/rest/v1/rpc/replace_participants_for_room' \
+# 10. PUT location/together/{room_id} (RPC API)
+curl -X POST 'http://127.0.0.1:54321/rest/v1/rpc/location_together_room_id' \
   -H "apikey: SUPABASE_ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
-    "room_id": "d1bd4ab5-6dcb-43d9-8350-e70a2cb90887",
-    "room_host_id": "5ba4db1d",
+    "room_id": "{room_id}",
+    "room_host_id": "{room_host_id}",
     "participants": [
       { "name": "김띨팔", "region_name": "C장소", "start_x": 126.917, "start_y": 37.4949 },
       { "name": "홍길동", "region_name": "A장소", "start_x": 127.00, "start_y": 37.50 }
     ]
   }'
+
+
+# 11. GET /location/point/place/{category} (EDGE FUNCTION)
+# default category food
+# curl -X GET "http://localhost:54321/functions/v1/location-point-place/drink?x=127.0276&y=37.4979" \
+# curl -X GET "http://localhost:54321/functions/v1/location-point-place/cafe?x=127.0276&y=37.4979" \
+# curl -X GET "http://localhost:54321/functions/v1/location-point-place/food?x=127.0276&y=37.4979" \
+curl -X GET "http://localhost:54321/functions/v1/location-point-place?x=127.0276&y=37.4979" \
+  -H "Authorization: Bearer SUPABASE_ACCESS_TOKEN" \
+  -H "Content-Type: application/json"

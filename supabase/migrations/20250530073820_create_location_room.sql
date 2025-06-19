@@ -1,3 +1,4 @@
+-- DDL
 CREATE TABLE location_room
 (
     room_id             UUID PRIMARY KEY         DEFAULT gen_random_uuid(),
@@ -6,6 +7,7 @@ CREATE TABLE location_room
     created_at          TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
     updated_at          TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
 );
+
 
 CREATE TABLE participant
 (
@@ -17,32 +19,66 @@ CREATE TABLE participant
     start_y     DOUBLE PRECISION NOT NULL
 );
 
-create
-or replace function replace_participants_for_room(
+
+-- RPC
+CREATE
+OR REPLACE FUNCTION location_together_room_id(
     room_id uuid,
     room_host_id text,
     participants jsonb
 )
-returns void
-language plpgsql
-as $$
-begin
-    if
-not exists (
-        select 1 from location_room
-        where location_room.room_id = replace_participants_for_room.room_id
-          and location_room.room_host_id = replace_participants_for_room.room_host_id
-    ) then
-        raise exception 'No permission or not found';
-end if;
+RETURNS void
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF
+NOT EXISTS (
+        SELECT 1 FROM location_room
+        WHERE location_room.room_id = location_together_room_id.room_id
+          AND location_room.room_host_id = location_together_room_id.room_host_id
+    ) THEN
+        RAISE EXCEPTION 'No permission or not found';
+END IF;
 
-delete
-from participant
-where participant.room_id = replace_participants_for_room.room_id;
+DELETE
+FROM participant
+WHERE participant.room_id = location_together_room_id.room_id;
 
-insert into participant (room_id, name, region_name, start_x, start_y)
-select replace_participants_for_room.room_id,
-       p ->>'name', p->>'region_name', (p->>'start_x'):: double precision, (p->>'start_y'):: double precision
-from jsonb_array_elements(replace_participants_for_room.participants) as p;
-end;
+INSERT INTO participant (room_id, name, region_name, start_x, start_y)
+SELECT location_together_room_id.room_id,
+       p ->> 'name', p ->> 'region_name', (p ->> 'start_x'):: double precision, (p ->> 'start_y'):: double precision
+FROM jsonb_array_elements(location_together_room_id.participants) AS p;
+END;
+$$;
+
+
+CREATE
+OR REPLACE FUNCTION location_together(
+    name TEXT,
+    region_name TEXT,
+    start_x DOUBLE PRECISION,
+    start_y DOUBLE PRECISION
+)
+RETURNS JSONB
+LANGUAGE plpgsql
+AS $$
+DECLARE
+v_room_id UUID := gen_random_uuid();
+    v_room_host_id
+TEXT := reverse(replace(v_room_id::TEXT, '-', ''));
+BEGIN
+    v_room_host_id
+:= substring(v_room_host_id for 8);
+
+INSERT INTO location_room(room_id, room_host_id)
+VALUES (v_room_id, v_room_host_id);
+
+INSERT INTO participant(room_id, name, region_name, start_x, start_y)
+VALUES (v_room_id, name, region_name, start_x, start_y);
+
+RETURN jsonb_build_object(
+        'room_id', v_room_id,
+        'room_host_id', v_room_host_id
+       );
+END;
 $$;
