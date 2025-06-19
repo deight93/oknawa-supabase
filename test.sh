@@ -101,3 +101,13 @@ curl -X POST 'http://127.0.0.1:54321/rest/v1/rpc/location_together_room_id' \
       { "name": "홍길동", "region_name": "A장소", "start_x": 127.00, "start_y": 37.50 }
     ]
   }'
+
+
+# 11. GET /location/point/place/{category} (EDGE FUNCTION)
+# default category food
+# curl -X GET "http://localhost:54321/functions/v1/location-point-place/drink?x=127.0276&y=37.4979" \
+# curl -X GET "http://localhost:54321/functions/v1/location-point-place/cafe?x=127.0276&y=37.4979" \
+# curl -X GET "http://localhost:54321/functions/v1/location-point-place/food?x=127.0276&y=37.4979" \
+curl -X GET "http://localhost:54321/functions/v1/location-point-place?x=127.0276&y=37.4979" \
+  -H "Authorization: Bearer SUPABASE_ACCESS_TOKEN" \
+  -H "Content-Type: application/json"
