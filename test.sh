@@ -29,7 +29,7 @@ curl --request GET 'http://127.0.0.1:54321/rest/v1/location_result?map_id=eq.{ma
 
 
 # 4. POST location/points/{map_id}/vote (RPC API)
-curl -X POST "http://127.0.0.1:54321/rest/v1/rpc/increase_vote" \
+curl -X POST "http://127.0.0.1:54321/rest/v1/rpc/location_points_vote" \
   -H "apikey: SUPABASE_ACCESS_TOKEN" \
   -H "Authorization: Bearer SUPABASE_ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
@@ -56,10 +56,10 @@ curl --request GET 'http://127.0.0.1:54321/rest/v1/station_info?share_key=eq.{SH
   -H "Accept: application/vnd.pgrst.object+json"
 
 
-# 7. POST location/together (EDGE FUNCTION)
-# TODO: RPC로 변경할것
-curl -X POST http://localhost:54321/functions/v1/location-together \
-  -H "Authorization: Bearer SUPABASE_ACCESS_TOKEN" \
+# 7. POST location/together (RPC API)
+curl -X POST "http://localhost:54321/rest/v1/rpc/location_together" \
+  -H "apikey: SUPABASE_SERVICE_ROLE_KEY" \
+  -H "Authorization: Bearer SUPABASE_SERVICE_ROLE_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "name": "김동환",
@@ -89,8 +89,8 @@ curl -X POST 'http://127.0.0.1:54321/rest/v1/participant' \
   }'
 
 
-# 9. PUT location/together/{room_id} (RPC API)
-curl -X POST 'http://127.0.0.1:54321/rest/v1/rpc/replace_participants_for_room' \
+# 10. PUT location/together/{room_id} (RPC API)
+curl -X POST 'http://127.0.0.1:54321/rest/v1/rpc/location_together_room_id' \
   -H "apikey: SUPABASE_ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
