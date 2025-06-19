@@ -85,7 +85,10 @@ curl -X POST 'http://127.0.0.1:54321/rest/v1/participant' \
   -H "Content-Type: application/json" \
   -d '{
     "room_id": "{room_id}",
-    "name": "김띨팔", "region_name": "C장소", "start_x": 126.917252, "start_y": 37.494990
+    "name": "김띨팔",
+    "region_name": "C장소",
+    "start_x": 126.917252,
+    "start_y": 37.494990
   }'
 
 
