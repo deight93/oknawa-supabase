@@ -7,6 +7,12 @@ curl -X POST http://localhost:54321/functions/v1/location-meeting \
   -H "Content-Type: application/json"
 
 
+# 1-2. POST location/meeting-terminal (EDGE FUNCTION)
+curl -X POST http://localhost:54321/functions/v1/location-meeting-terminal \
+  -H "Authorization: Bearer SUPABASE_ACCESS_TOKEN" \
+  -H "Content-Type: application/json"
+
+
 # 2. POST location/points (EDGE FUNCTION)
 curl -X POST http://localhost:54321/functions/v1/location-points \
   -H "Content-Type: application/json" \
